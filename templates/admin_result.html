@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Result: {{ result.candidate_name }} – PyAssess Pro{% endblock %}
+{% block extra_head %}
+<style>
+.topbar { background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:16px; }
+.topbar-title { font-size:18px;font-weight:700;font-family:var(--mono); }
+.topbar-title span { color:var(--accent); }
+.main { padding:32px;max-width:1200px;margin:0 auto; }
+.hero { background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:32px;display:flex;align-items:center;gap:32px; }
+.hero-avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#000;flex-shrink:0; }
+.hero-info h1 { font-size:22px;margin-bottom:4px; }
+.hero-info .meta { color:var(--muted);font-size:13px; }
+.hero-stats { margin-left:auto;display:flex;gap:24px; }
+.hero-stat { text-align:center; }
+.hero-stat .val { font-size:28px;font-weight:700;font-family:var(--mono); }
+.hero-stat .lbl { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px; }
+.section-title { font-size:16px;font-weight:700;margin:28px 0 14px;display:flex;align-items:center;gap:8px; }
+.proctor-events { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px; }
+.event-row { display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px; }
+.event-row:last-child { border-bottom:none; }
+.event-type { font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,0.1);color:var(--yellow); }
+.event-type.VOICE_DETECTED { background:rgba(239,68,68,0.15);color:var(--red); }
+.event-type.TAB_SWITCH { background:rgba(245,158,11,0.15);color:var(--yellow); }
+.event-time { font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto; }
+.mcq-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-bottom:28px; }
+.mcq-item { background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px; }
+.mcq-item.correct { border-left:3px solid var(--green); }
+.mcq-item.wrong { border-left:3px solid var(--red); }
+.mcq-item.skipped { border-left:3px solid var(--muted); }
+.mcq-q { font-size:12px;color:var(--text);margin-bottom:8px;line-height:1.4; }
+.mcq-ans { display:flex;gap:16px;font-size:11px; }
+.mcq-ans .user { color:var(--muted); }
+.mcq-ans .correct-ans { color:var(--green); }
+.code-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px; }
+.code-q { font-size:14px;line-height:1.6;margin-bottom:16px;color:var(--text); }
+.code-block { background:#060b14;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:13px;color:#a5f3fc;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px; }
+.code-review { background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px; }
+.code-review h4 { font-size:13px;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px; }
+.score-btns { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px; }
+.score-btn { padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all 0.15s; }
+.score-btn.active { border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08); }
+.save-btn { padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;border:none;margin-top:10px; }
+</style>
+{% endblock %}
+{% block body %}
+<div class="topbar">
+  <a href="/admin" style="color:var(--muted);font-size:13px">← Dashboard</a>
+  <div class="topbar-title">Py<span>Assess</span> Pro <span style="color:var(--muted);font-size:13px">/ Result Detail</span></div>
+</div>
+<div class="main">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-avatar">{{ result.candidate_name[0].upper() }}</div>
+    <div class="hero-info">
+      <h1>{{ result.candidate_name }}</h1>
+      <div class="meta">{{ result.candidate_email }} · Submitted {{ result.submitted_at[:16].replace('T',' ') }}</div>
+      {% if result.ejected %}<div style="color:var(--red);font-size:13px;margin-top:6px">⚠️ Ejected due to proctoring violation</div>{% endif %}
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="val" style="color:{% if result.mcq_percentage >= 70 %}var(--green){% elif result.mcq_percentage >= 50 %}var(--yellow){% else %}var(--red){% endif %}">{{ result.mcq_percentage }}%</div>
+        <div class="lbl">MCQ Score</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val blue">{{ result.mcq_score }}/{{ result.mcq_total }}</div>
+        <div class="lbl">MCQ Correct</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val" style="color:var(--accent)">{% if result.final_score is not none %}{{ result.final_score }}/65{% else %}Pending{% endif %}</div>
+        <div class="lbl">Final Score</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val" style="color:{% if result.proctoring_events|length > 3 %}var(--red){% elif result.proctoring_events|length > 0 %}var(--yellow){% else %}var(--green){% endif %}">{{ result.proctoring_events|length }}</div>
+        <div class="lbl">Flag Events</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCTORING -->
+  {% if result.proctoring_events %}
+  <div class="section-title">🔒 Proctoring Events</div>
+  <div class="proctor-events">
+    {% for ev in result.proctoring_events %}
+    <div class="event-row">
+      <span class="event-type {{ ev.type }}">{{ ev.type }}</span>
+      <span style="font-size:13px;color:var(--text)">{{ ev.detail }}</span>
+      {% if ev.get('question') %}<span style="font-size:11px;color:var(--muted)">Q{{ ev.question }}</span>{% endif %}
+      <span class="event-time">{{ ev.time[11:19] }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- MCQ ANSWERS -->
+  <div class="section-title">📝 MCQ Answers ({{ result.mcq_score }}/{{ result.mcq_total }})</div>
+  <div class="mcq-grid">
+    {% for qid, g in result.graded_answers.items() %}
+    {% set cls = 'correct' if g.is_correct else ('wrong' if g.user_answer else 'skipped') %}
+    <div class="mcq-item {{ cls }}">
+      <div class="mcq-q">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Q{{ qid }} [{{ g.level }}]</span><br>
+        {{ g.question[:100] }}{% if g.question|length > 100 %}...{% endif %}
+      </div>
+      <div class="mcq-ans">
+        <span class="user">Your answer: <strong>{{ g.user_answer or '—' }}</strong></span>
+        {% if not g.is_correct %}<span class="correct-ans">✓ Correct: <strong>{{ g.correct_answer }}</strong></span>{% endif %}
+        {% if g.is_correct %}<span style="color:var(--green)">✓ Correct</span>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- CODE REVIEW -->
+  <div class="section-title">💻 Code Questions — Admin Review</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Review each code submission and assign a score (0–1 per question). 5 code questions = 5 total marks.</p>
+  {% for qid, ca in result.code_answers.items() %}
+  <div class="code-card" id="code-card-{{ qid }}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <span class="tag-coding">Q{{ qid }} — Coding</span>
+      {% if ca.admin_reviewed %}<span style="color:var(--green);font-size:12px">✅ Reviewed · Score: {{ ca.admin_score }}/1</span>{% else %}<span style="color:var(--yellow);font-size:12px">⏳ Pending review</span>{% endif %}
+    </div>
+    <div class="code-q">{{ ca.question }}</div>
+    <div class="code-block">{{ ca.user_code or '# No code submitted' }}</div>
+    <div class="code-review">
+      <h4>Admin Score & Notes</h4>
+      <div class="score-btns">
+        <button class="score-btn {% if ca.admin_score == 0 %}active{% endif %}" onclick="setScore('{{ result_id }}','{{ qid }}',0,this)">0 – No attempt / Wrong</button>
+        <button class="score-btn {% if ca.admin_score == 1 %}active{% endif %}" onclick="setScore('{{ result_id }}','{{ qid }}',1,this)">1 – Correct</button>
+      </div>
+      <textarea id="note-{{ qid }}" placeholder="Optional notes about this solution..." rows="2" style="margin-bottom:8px">{{ ca.admin_note }}</textarea>
+      <button class="save-btn" onclick="saveReview('{{ result_id }}','{{ qid }}')">Save Review</button>
+      <span id="save-status-{{ qid }}" style="font-size:12px;color:var(--green);margin-left:12px"></span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+const scoreSelections = {};
+
+function setScore(resultId, qid, score, btn) {
+  scoreSelections[qid] = score;
+  btn.parentElement.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveReview(resultId, qid) {
+  const score = scoreSelections[qid];
+  if (score === undefined) { alert('Please select a score first'); return; }
+  const note = document.getElementById(`note-${qid}`).value;
+  const res = await fetch('/admin/update-code-review', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ result_id: resultId, question_id: qid, score, note })
+  });
+  const data = await res.json();
+  if (data.success) {
+    const el = document.getElementById(`save-status-${qid}`);
+    el.textContent = '✅ Saved!';
+    setTimeout(() => { el.textContent = ''; location.reload(); }, 1500);
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – PyAssess Pro{% endblock %}
+{% block extra_head %}
+<style>
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 14px 32px; display: flex; align-items: center; gap: 16px;
+}
+.topbar-title { font-size: 18px; font-weight: 700; font-family: var(--mono); }
+.topbar-title span { color: var(--accent); }
+.topbar-actions { margin-left: auto; display: flex; gap: 12px; }
+.main { padding: 32px; max-width: 1300px; margin: 0 auto; }
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.stat-val { font-size: 32px; font-weight: 700; font-family: var(--mono); }
+.stat-val.blue { color: var(--accent); }
+.stat-val.green { color: var(--green); }
+.stat-val.red { color: var(--red); }
+.stat-val.yellow { color: var(--yellow); }
+.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface2); }
+td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.status-pill {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+}
+.status-completed { background: rgba(16,185,129,0.15); color: var(--green); }
+.status-ejected { background: rgba(239,68,68,0.15); color: var(--red); }
+.status-pending { background: rgba(100,116,139,0.15); color: var(--muted); }
+.create-form { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.link-output {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; font-family: var(--mono); font-size: 12px; color: var(--accent);
+  word-break: break-all; display: none;
+}
+.copy-btn { font-size: 11px; padding: 4px 10px; margin-left: 8px; }
+.events-count { font-size: 11px; color: var(--muted); }
+.events-count.warn { color: var(--yellow); }
+.events-count.danger { color: var(--red); }
+</style>
+{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="topbar-title">Py<span>Assess</span> Pro <span style="color:var(--muted);font-size:13px;margin-left:8px">Admin Panel</span></div>
+  <div class="topbar-actions">
+    <a href="/admin/logout" class="btn btn-ghost">Logout</a>
+  </div>
+</div>
+<div class="main">
+  {% set completed = results.values()|selectattr('status','equalto','completed')|list %}
+  {% set ejected = results.values()|selectattr('status','equalto','ejected')|list %}
+  {% set pending_sessions = sessions.values()|selectattr('status','equalto','pending')|list %}
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Sessions</div>
+      <div class="stat-val blue">{{ sessions|length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-val green">{{ completed|length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Ejected</div>
+      <div class="stat-val red">{{ ejected|length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending</div>
+      <div class="stat-val yellow">{{ pending_sessions|length }}</div>
+    </div>
+  </div>
+
+  <!-- CREATE SESSION -->
+  <div class="create-form">
+    <div class="section-title">➕ Create Test Session & Send Link</div>
+    <div class="form-row">
+      <div>
+        <div class="form-label">Candidate Full Name</div>
+        <input type="text" id="cand-name" placeholder="e.g. Rahul Sharma"/>
+      </div>
+      <div>
+        <div class="form-label">Candidate Email</div>
+        <input type="email" id="cand-email" placeholder="e.g. rahul@example.com"/>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="createSession()">Generate Test Link</button>
+    <div style="margin-top:16px">
+      <div id="generated-link-wrap">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Unique Test Link:</div>
+        <div class="link-output" id="link-output"></div>
+        <button class="btn btn-ghost copy-btn" id="copy-btn" onclick="copyLink()" style="display:none;margin-top:8px">📋 Copy Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE SESSIONS -->
+  <div class="section-title">🔗 Test Sessions</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Email</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Test Link</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for token, s in sessions.items() %}
+        <tr>
+          <td style="font-weight:600">{{ s.name }}</td>
+          <td style="color:var(--muted)">{{ s.email }}</td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">{{ s.created_at[:16].replace('T',' ') }}</td>
+          <td><span class="status-pill status-{{ s.status }}">{{ s.status }}</span></td>
+          <td>
+            {% if s.status == 'pending' %}
+            <span style="font-family:var(--mono);font-size:11px;color:var(--accent)">/test/{{ token[:12] }}...</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if s.get('result_id') %}
+            <a href="/admin/result/{{ s.result_id }}" class="btn btn-ghost" style="font-size:11px;padding:4px 10px">View Result</a>
+            {% endif %}
+            {% if s.status == 'pending' %}
+            <button class="btn btn-danger" style="font-size:11px;padding:4px 10px;margin-left:6px" onclick="deleteSession('{{ token }}')">Delete</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No sessions yet. Create one above.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section-title">📊 Test Results</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Submitted</th>
+          <th>MCQ Score</th>
+          <th>MCQ %</th>
+          <th>Code Review</th>
+          <th>Final Score</th>
+          <th>Proctoring</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rid, r in results.items() %}
+        {% set code_reviewed = r.code_answers.values()|selectattr('admin_reviewed')|list|length %}
+        <tr>
+          <td style="font-weight:600">{{ r.candidate_name }}</td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">{{ r.submitted_at[:16].replace('T',' ') }}</td>
+          <td style="font-family:var(--mono)">{{ r.mcq_score }}/{{ r.mcq_total }}</td>
+          <td>
+            <span style="color:{% if r.mcq_percentage >= 70 %}var(--green){% elif r.mcq_percentage >= 50 %}var(--yellow){% else %}var(--red){% endif %}">
+              {{ r.mcq_percentage }}%
+            </span>
+          </td>
+          <td>
+            <span style="font-size:12px;color:{% if code_reviewed == 5 %}var(--green){% else %}var(--yellow){% endif %}">
+              {{ code_reviewed }}/5 reviewed
+            </span>
+          </td>
+          <td style="font-family:var(--mono);font-weight:700;color:var(--accent)">
+            {% if r.final_score is not none %}{{ r.final_score }}/65{% else %}Pending{% endif %}
+          </td>
+          <td>
+            {% set events = r.proctoring_events|length %}
+            <span class="events-count {% if events > 5 %}danger{% elif events > 0 %}warn{% endif %}">
+              {{ events }} event{{ 's' if events != 1 }}
+            </span>
+          </td>
+          <td><span class="status-pill status-{{ r.status }}">{{ r.status }}</span></td>
+          <td><a href="/admin/result/{{ rid }}" class="btn btn-primary" style="font-size:11px;padding:5px 12px">Review</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">No results yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let generatedLink = '';
+
+async function createSession() {
+  const name = document.getElementById('cand-name').value.trim();
+  const email = document.getElementById('cand-email').value.trim();
+  if (!name || !email) { alert('Please enter name and email'); return; }
+  const res = await fetch('/admin/create-session', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name, email})
+  });
+  const data = await res.json();
+  if (data.error) { alert(data.error); return; }
+  generatedLink = data.link;
+  const lo = document.getElementById('link-output');
+  lo.textContent = generatedLink;
+  lo.style.display = 'block';
+  document.getElementById('copy-btn').style.display = 'inline-block';
+  // Refresh page to show new session
+  setTimeout(() => location.reload(), 2000);
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(generatedLink);
+  document.getElementById('copy-btn').textContent = '✅ Copied!';
+  setTimeout(() => document.getElementById('copy-btn').textContent = '📋 Copy Link', 2000);
+}
+
+async function deleteSession(token) {
+  if (!confirm('Delete this session?')) return;
+  await fetch(`/admin/delete-session/${token}`, {method:'POST'});
+  location.reload();
+}
+</script>
+{% endblock %}

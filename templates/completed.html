@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Test Completed – PyAssess Pro{% endblock %}
+{% block body %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:32px;">
+  <div style="font-size:64px">✅</div>
+  <h1 style="font-size:28px;font-weight:700">Test Submitted Successfully</h1>
+  <p style="color:var(--muted);max-width:420px;line-height:1.7">
+    Your test has been submitted for review. The hiring team will evaluate your responses and reach out to you with the results.
+    Thank you for taking the PyAssess Pro Python Developer Test.
+  </p>
+  <div class="card" style="max-width:400px;background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)">
+    <p style="color:var(--green);font-size:14px">Your answers have been recorded. You may now close this window.</p>
+  </div>
+</div>
+{% endblock %}

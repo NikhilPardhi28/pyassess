@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}PyAssess Pro – Python Developer Test{% endblock %}
+{% block body %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;text-align:center;padding:32px;">
+  <div style="font-family:var(--mono);font-size:40px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">PyAssess Pro</div>
+  <div style="font-size:18px;color:var(--muted)">Python Developer Assessment Platform</div>
+  <div class="card" style="max-width:480px;text-align:left;">
+    <h2 style="margin-bottom:12px">Welcome</h2>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:20px">
+      To take the Python Developer test, you need a unique test link provided by the hiring team.
+      Please contact your recruiter if you haven't received your link.
+    </p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--muted)">
+      📋 <strong style="color:var(--text)">Before you start:</strong><br><br>
+      • Ensure your camera and microphone are working<br>
+      • Find a quiet, well-lit room<br>
+      • Do not speak or make noise during the test<br>
+      • Do not switch tabs or windows<br>
+      • You have <strong style="color:var(--accent)">90 minutes</strong> to complete 60 questions
+    </div>
+  </div>
+  <a href="/admin" style="font-size:12px;color:var(--muted)">Admin Login →</a>
+</div>
+{% endblock %}

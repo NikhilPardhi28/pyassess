@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+{% block title %}Python Developer Assessment – PyAssess Pro{% endblock %}
+{% block extra_head %}
+<style>
+/* ── LAYOUT ── */
+#proctor-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: #060b14; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px; padding: 10px 20px;
+}
+#main-wrap { display: flex; padding-top: 58px; min-height: 100vh; }
+#sidebar {
+  width: 260px; min-height: calc(100vh - 58px); position: fixed; top: 58px;
+  background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto;
+  padding: 16px 12px;
+}
+#content { margin-left: 260px; flex: 1; padding: 32px 40px; max-width: 900px; }
+
+/* ── PROCTOR BAR ── */
+.pro-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.pro-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.pro-dot.ok { background: var(--green); animation: pulse 2s infinite; }
+.pro-dot.warn { background: var(--yellow); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+#cam-preview {
+  width: 100px; height: 60px; border-radius: 6px; object-fit: cover;
+  border: 2px solid var(--border); margin-left: auto;
+}
+#timer-display {
+  font-family: var(--mono); font-size: 18px; font-weight: 700;
+  color: var(--accent); letter-spacing: 2px; margin-left: 12px;
+}
+#timer-display.warn { color: var(--yellow); }
+#timer-display.danger { color: var(--red); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── SIDEBAR NAV ── */
+.q-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 4px; margin-bottom: 16px; }
+.q-btn {
+  aspect-ratio: 1; border-radius: 5px; font-size: 10px; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface2);
+  color: var(--muted); transition: all 0.15s;
+}
+.q-btn:hover { border-color: var(--accent); color: var(--accent); }
+.q-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+.q-btn.answered { background: rgba(16,185,129,0.15); border-color: var(--green); color: var(--green); }
+.q-btn.skipped { background: rgba(245,158,11,0.08); border-color: var(--yellow); color: var(--yellow); }
+.section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 12px 0 6px; font-weight: 700; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
+
+/* ── QUESTION CARD ── */
+#question-card { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.q-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.q-num { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.q-text { font-size: 16px; line-height: 1.7; color: var(--text); margin-bottom: 24px; }
+.option-list { display: flex; flex-direction: column; gap: 10px; }
+.option-item {
+  display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px;
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+  transition: all 0.15s; background: var(--surface2);
+}
+.option-item:hover { border-color: var(--accent); background: rgba(0,212,255,0.04); }
+.option-item.selected { border-color: var(--accent); background: rgba(0,212,255,0.08); }
+.option-key {
+  width: 28px; height: 28px; border-radius: 6px; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.option-item.selected .option-key { background: var(--accent); color: #000; }
+.option-text { font-size: 14px; line-height: 1.5; padding-top: 5px; }
+#code-area {
+  font-family: var(--mono); font-size: 13px; background: #060b14;
+  border: 1px solid var(--border); border-radius: 10px; padding: 18px;
+  min-height: 280px; resize: vertical; line-height: 1.6; color: #a5f3fc;
+}
+#code-area:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+.nav-btns { display: flex; gap: 12px; margin-top: 28px; justify-content: space-between; align-items: center; }
+
+/* ── EJECT OVERLAY ── */
+#eject-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.95); align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px; text-align: center;
+}
+#eject-overlay.show { display: flex; }
+.eject-icon { font-size: 64px; }
+.eject-title { font-size: 28px; font-weight: 700; color: var(--red); }
+.eject-msg { color: var(--muted); max-width: 420px; line-height: 1.6; }
+#voice-alert {
+  display: none; position: fixed; bottom: 24px; right: 24px; z-index: 500;
+  background: var(--red); color: #fff; padding: 12px 20px; border-radius: 10px;
+  font-weight: 600; font-size: 13px; animation: shake 0.3s ease;
+}
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+/* ── SUBMIT MODAL ── */
+#submit-modal {
+  display: none; position: fixed; inset: 0; z-index: 800;
+  background: rgba(0,0,0,0.8); align-items: center; justify-content: center;
+}
+#submit-modal.show { display: flex; }
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 440px; width: 90%; text-align: center; }
+.modal-box h2 { font-size: 20px; margin-bottom: 12px; }
+.modal-box p { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+.modal-btns { display: flex; gap: 12px; justify-content: center; }
+</style>
+{% endblock %}
+{% block body %}
+
+<!-- EJECT OVERLAY -->
+<div id="eject-overlay">
+  <div class="eject-icon">🚫</div>
+  <div class="eject-title">You Have Been Ejected</div>
+  <div class="eject-msg" id="eject-reason-msg">
+    Voice or audio was detected during the test. Your test has been terminated automatically.
+    Your partial answers have been submitted for review.
+  </div>
+  <button class="btn btn-ghost" onclick="window.location.href='/'">Return to Home</button>
+</div>
+
+<!-- VOICE ALERT -->
+<div id="voice-alert">⚠️ NOISE DETECTED – Ejecting...</div>
+
+<!-- SUBMIT MODAL -->
+<div id="submit-modal">
+  <div class="modal-box">
+    <h2>Submit Test?</h2>
+    <p>You have answered <span id="modal-answered">0</span> of 60 questions.<br>
+    Unanswered questions will be marked as incorrect. This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="document.getElementById('submit-modal').classList.remove('show')">Go Back</button>
+      <button class="btn btn-primary" onclick="submitTest(false)">Submit Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROCTORING BAR -->
+<div id="proctor-bar">
+  <div class="pro-item">
+    <div class="pro-dot" id="cam-dot"></div>
+    <span id="cam-status">Camera: Initializing</span>
+  </div>
+  <div class="pro-item">
+    <div class="pro-dot" id="mic-dot"></div>
+    <span id="mic-status">Mic: Initializing</span>
+  </div>
+  <div class="pro-item">
+    <div class="pro-dot ok" id="tab-dot"></div>
+    <span id="tab-status">Tab: Active</span>
+  </div>
+  <span id="timer-display">90:00</span>
+  <video id="cam-preview" autoplay muted playsinline></video>
+</div>
+
+<!-- MAIN -->
+<div id="main-wrap">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text)">Question Navigator</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--muted);margin:6px 0 12px"><span id="answered-count">0</span>/60 answered</div>
+    <div class="section-label">🟢 Very Easy (Q1–3)</div>
+    <div class="q-grid" id="nav-very_easy"></div>
+    <div class="section-label">🟩 Easy (Q4–25)</div>
+    <div class="q-grid" id="nav-easy"></div>
+    <div class="section-label">🟡 Medium (Q26–45)</div>
+    <div class="q-grid" id="nav-medium"></div>
+    <div class="section-label">🔴 Extreme (Q46–55)</div>
+    <div class="q-grid" id="nav-extreme"></div>
+    <div class="section-label">💻 Coding (Q56–60)</div>
+    <div class="q-grid" id="nav-coding"></div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('submit-modal').classList.add('show')">
+        Submit Test
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+    <div id="question-card">
+      <div class="q-header">
+        <span class="q-num" id="q-num-label">Q1 of 60</span>
+        <span id="q-level-badge"></span>
+      </div>
+      <div class="q-text" id="q-text"></div>
+      <div id="q-answer-area"></div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" id="prev-btn" onclick="navigate(-1)">← Previous</button>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="clearAnswer()">Clear</button>
+          <button class="btn btn-primary" id="next-btn" onclick="navigate(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOKEN = "{{ token }}";
+const TOTAL_Q = 60;
+const DURATION = 90 * 60; // 90 minutes
+
+let questions = [];
+let answers = {};
+let currentQ = 0;
+let timeLeft = DURATION;
+let timerInterval;
+let proctoringEvents = [];
+let ejected = false;
+let stream = null;
+let audioCtx = null;
+let analyser = null;
+let micCheckInterval = null;
+let tabSwitchCount = 0;
+
+// ── INIT ──
+window.addEventListener('load', async () => {
+  await fetchQuestions();
+  await initProctoring();
+  startTimer();
+  renderQuestion(0);
+  buildNav();
+});
+
+async function fetchQuestions() {
+  const res = await fetch(`/api/questions/${TOKEN}`);
+  questions = await res.json();
+}
+
+// ── PROCTORING ──
+async function initProctoring() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('cam-preview').srcObject = stream;
+    setCamStatus(true);
+    setMicStatus(true);
+    startVoiceDetection(stream);
+  } catch(e) {
+    setCamStatus(false);
+    setMicStatus(false);
+    logEvent('MEDIA_DENIED', 'Camera/mic access denied');
+    // Still allow test but log
+  }
+}
+
+function setCamStatus(ok) {
+  document.getElementById('cam-dot').className = 'pro-dot' + (ok ? ' ok' : '');
+  document.getElementById('cam-status').textContent = 'Camera: ' + (ok ? 'Active' : 'DENIED');
+}
+function setMicStatus(ok) {
+  document.getElementById('mic-dot').className = 'pro-dot' + (ok ? ' ok' : '');
+  document.getElementById('mic-status').textContent = 'Mic: ' + (ok ? 'Active' : 'DENIED');
+}
+
+function startVoiceDetection(stream) {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.3;
+    const src = audioCtx.createMediaStreamSource(stream);
+    src.connect(analyser);
+    const buf = new Uint8Array(analyser.fftSize);
+    let silenceFrames = 0;
+    const THRESHOLD = 22; // sensitivity
+    const REQUIRED_FRAMES = 8; // consecutive frames above threshold
+    let loudFrames = 0;
+
+    function checkAudio() {
+      if (ejected) return;
+      analyser.getByteTimeDomainData(buf);
+      let maxAmp = 0;
+      for (let i = 0; i < buf.length; i++) {
+        maxAmp = Math.max(maxAmp, Math.abs(buf[i] - 128));
+      }
+      if (maxAmp > THRESHOLD) {
+        loudFrames++;
+        if (loudFrames >= REQUIRED_FRAMES) {
+          handleVoiceDetected();
+          loudFrames = 0;
+        }
+      } else {
+        loudFrames = Math.max(0, loudFrames - 1);
+      }
+      requestAnimationFrame(checkAudio);
+    }
+    checkAudio();
+  } catch(e) { console.warn('Audio analysis failed:', e); }
+}
+
+function handleVoiceDetected() {
+  if (ejected) return;
+  ejected = true;
+  logEvent('VOICE_DETECTED', 'Audio/voice detected during test — auto-eject triggered');
+  const alert = document.getElementById('voice-alert');
+  alert.style.display = 'block';
+  setTimeout(() => {
+    submitTest(true);
+  }, 1500);
+}
+
+function logEvent(type, detail) {
+  proctoringEvents.push({ type, detail, time: new Date().toISOString(), question: currentQ + 1 });
+}
+
+// Tab switch detection
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    tabSwitchCount++;
+    logEvent('TAB_SWITCH', `Tab switch #${tabSwitchCount}`);
+    document.getElementById('tab-dot').className = 'pro-dot warn';
+    document.getElementById('tab-status').textContent = `Tab: Away (${tabSwitchCount}x)`;
+  } else {
+    document.getElementById('tab-dot').className = 'pro-dot ok';
+    document.getElementById('tab-status').textContent = 'Tab: Active';
+  }
+});
+
+// Fullscreen loss
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) logEvent('FULLSCREEN_EXIT', 'Exited fullscreen');
+});
+
+// Copy/paste
+document.addEventListener('copy', () => logEvent('COPY', 'Text copied'));
+document.addEventListener('paste', () => logEvent('PASTE', 'Paste detected'));
+
+// ── TIMER ──
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      submitTest(false);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const el = document.getElementById('timer-display');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = timeLeft < 300 ? 'danger' : timeLeft < 600 ? 'warn' : '';
+}
+
+// ── NAVIGATION ──
+function navigate(dir) {
+  const next = currentQ + dir;
+  if (next >= 0 && next < questions.length) {
+    renderQuestion(next);
+  }
+}
+
+function renderQuestion(idx) {
+  currentQ = idx;
+  const q = questions[idx];
+  if (!q) return;
+
+  document.getElementById('q-num-label').textContent = `Q${idx+1} of ${TOTAL_Q}`;
+
+  const levelMap = { very_easy:'Very Easy', easy:'Easy', medium:'Medium', extreme:'Extreme', coding:'Coding' };
+  const colorMap = { very_easy:'#6ee7b7', easy:'#10b981', medium:'#f59e0b', extreme:'#ef4444', coding:'#a78bfa' };
+  const badge = document.getElementById('q-level-badge');
+  badge.textContent = levelMap[q.level] || q.level;
+  badge.className = `tag-${q.level}`;
+
+  document.getElementById('q-text').textContent = q.question;
+
+  const area = document.getElementById('q-answer-area');
+  if (q.type === 'mcq') {
+    const keys = ['A','B','C','D'];
+    area.innerHTML = `<div class="option-list">${q.options.map((opt,i) => `
+      <div class="option-item ${answers[q.id] === keys[i] ? 'selected':''}" onclick="selectOption(${q.id},'${keys[i]}',this)">
+        <div class="option-key">${keys[i]}</div>
+        <div class="option-text">${opt}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    area.innerHTML = `
+      <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:var(--mono)">
+        // Write your Python code below
+      </div>
+      <textarea id="code-area" class="card" style="font-family:var(--mono);font-size:13px;background:#060b14;min-height:280px;resize:vertical;color:#a5f3fc;line-height:1.6;"
+        placeholder="# Write your Python solution here..."
+        oninput="answers[${q.id}]=this.value;updateNav()">${answers[q.id]||''}</textarea>`;
+  }
+
+  // Update nav buttons
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').textContent = idx === questions.length - 1 ? 'Finish →' : 'Next →';
+
+  updateNav();
+  document.getElementById('question-card').style.animation = 'none';
+  requestAnimationFrame(() => { document.getElementById('question-card').style.animation = 'slideIn 0.3s ease'; });
+}
+
+function selectOption(qid, key, el) {
+  answers[qid] = key;
+  document.querySelectorAll('.option-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  updateNav();
+}
+
+function clearAnswer() {
+  const q = questions[currentQ];
+  delete answers[q.id];
+  renderQuestion(currentQ);
+}
+
+function buildNav() {
+  const sections = { very_easy:[], easy:[], medium:[], extreme:[], coding:[] };
+  questions.forEach((q,i) => { if (sections[q.level]) sections[q.level].push({q,i}); });
+  for (const [level, items] of Object.entries(sections)) {
+    const container = document.getElementById(`nav-${level}`);
+    if (!container) continue;
+    items.forEach(({q,i}) => {
+      const btn = document.createElement('button');
+      btn.className = 'q-btn';
+      btn.id = `nav-btn-${i}`;
+      btn.textContent = i+1;
+      btn.onclick = () => renderQuestion(i);
+      container.appendChild(btn);
+    });
+  }
+}
+
+function updateNav() {
+  let answered = 0;
+  questions.forEach((q,i) => {
+    const btn = document.getElementById(`nav-btn-${i}`);
+    if (!btn) return;
+    const hasAnswer = answers[q.id] !== undefined && answers[q.id] !== '';
+    btn.className = `q-btn${i === currentQ ? ' active' : hasAnswer ? ' answered' : ''}`;
+    if (hasAnswer) answered++;
+  });
+  document.getElementById('answered-count').textContent = answered;
+  document.getElementById('progress-fill').style.width = `${(answered/TOTAL_Q)*100}%`;
+  document.getElementById('modal-answered').textContent = answered;
+}
+
+// ── SUBMIT ──
+async function submitTest(isEject) {
+  clearInterval(timerInterval);
+  if (stream) stream.getTracks().forEach(t => t.stop());
+
+  // Save current code answer if on code question
+  const q = questions[currentQ];
+  if (q && q.type === 'code') {
+    const ta = document.getElementById('code-area');
+    if (ta) answers[q.id] = ta.value;
+  }
+
+  const payload = {
+    token: TOKEN,
+    answers: Object.fromEntries(Object.entries(answers).map(([k,v]) => [k, v])),
+    proctoring_events: proctoringEvents,
+    ejected: isEject
+  };
+
+  try {
+    await fetch('/api/submit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+
+  if (isEject) {
+    document.getElementById('eject-overlay').classList.add('show');
+  } else {
+    window.location.href = '/completed';
+  }
+}
+</script>
+{% endblock %}

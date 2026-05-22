@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin Login – PyAssess Pro{% endblock %}
+{% block body %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+  <div class="card" style="width:360px;">
+    <div style="font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:4px">
+      Py<span style="color:var(--accent)">Assess</span> Pro
+    </div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:24px">Admin Login</div>
+    {% if error %}<div style="background:rgba(239,68,68,0.1);border:1px solid var(--red);border-radius:8px;padding:10px 14px;color:var(--red);font-size:13px;margin-bottom:16px">{{ error }}</div>{% endif %}
+    <form method="POST" action="/admin/login">
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Username</div>
+        <input name="username" type="text" placeholder="admin" autocomplete="off"/>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Password</div>
+        <input name="password" type="password" placeholder="••••••••"/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Login →</button>
+    </form>
+    <div style="margin-top:16px;font-size:11px;color:var(--muted);text-align:center">Default: admin / Admin@PyTest2024</div>
+  </div>
+</div>
+{% endblock %}

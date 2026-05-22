@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error – PyAssess Pro{% endblock %}
+{% block body %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:32px;">
+  <div style="font-size:56px">⚠️</div>
+  <h1 style="font-size:24px;font-weight:700;color:var(--red)">Access Denied</h1>
+  <p style="color:var(--muted);max-width:400px;line-height:1.7">{{ msg }}</p>
+  <a href="/" class="btn btn-ghost">← Go Home</a>
+</div>
+{% endblock %}

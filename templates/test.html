@@ -5,7 +5,7 @@
 #proctor-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:#060b14;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:10px 20px;}
 #main-wrap{display:flex;padding-top:58px;min-height:100vh;}
 #sidebar{width:260px;min-height:calc(100vh - 58px);position:fixed;top:58px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 12px;}
-#content{margin-left:260px;flex:1;padding:32px 40px;max-width:900px;}
+#content{margin-left:260px;flex:1;padding:32px 40px 100px;max-width:900px;}
 .pro-item{display:flex;align-items:center;gap:8px;font-size:12px;}
 .pro-dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
 .pro-dot.ok{background:var(--green);animation:pulse 2s infinite;}
@@ -147,9 +147,20 @@
         <button class="btn btn-ghost" id="prev-btn" onclick="navigate(-1)">← Previous</button>
         <div style="display:flex;gap:10px">
           <button class="btn btn-ghost" onclick="clearAnswer()">Clear</button>
-          <button class="btn btn-primary" id="next-btn" onclick="navigate(1)">Next →</button>
+          <button class="btn btn-primary" id="next-btn" onclick="handleNext()">Next →</button>
         </div>
       </div>
+    </div>
+
+    <!-- FLOATING SUBMIT BAR — always visible at bottom -->
+    <div id="float-submit" style="position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;z-index:50;">
+      <div style="font-size:13px;color:var(--muted);">
+        <span id="float-answered">0</span>/60 answered &nbsp;·&nbsp;
+        <span id="float-timer" style="font-family:var(--mono);color:var(--accent);">90:00</span> remaining
+      </div>
+      <button class="btn btn-primary" style="padding:10px 28px;font-size:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));" onclick="document.getElementById('submit-modal').classList.add('show')">
+        ✅ Submit Test
+      </button>
     </div>
   </div>
 </div>
@@ -266,14 +277,26 @@ function startTimer() {
   timerInterval = setInterval(() => {
     timeLeft--;
     const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+    const t = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     const el = document.getElementById('timer-display');
-    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.textContent = t;
     el.className   = timeLeft < 300 ? 'danger' : timeLeft < 600 ? 'warn' : '';
+    // sync float bar
+    const ft = document.getElementById('float-timer');
+    if (ft) { ft.textContent = t; ft.style.color = timeLeft < 300 ? 'var(--red)' : timeLeft < 600 ? 'var(--yellow)' : 'var(--accent)'; }
     if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(false); }
   }, 1000);
 }
 
 // ── QUESTIONS ─────────────────────────────────────────────────────────────
+function handleNext() {
+  if (currentQ === questions.length - 1) {
+    document.getElementById('submit-modal').classList.add('show');
+  } else {
+    navigate(1);
+  }
+}
+
 function navigate(dir) {
   const n = currentQ + dir;
   if (n >= 0 && n < questions.length) renderQuestion(n);
@@ -346,6 +369,11 @@ function updateNav() {
   document.getElementById('answered-count').textContent = answered;
   document.getElementById('progress-fill').style.width = `${(answered/TOTAL_Q)*100}%`;
   document.getElementById('modal-answered').textContent = answered;
+  const fa = document.getElementById('float-answered');
+  if (fa) fa.textContent = answered;
+  // change Next button to Submit on last question
+  const nb = document.getElementById('next-btn');
+  if (nb) nb.textContent = currentQ === questions.length - 1 ? '✅ Submit Test' : 'Next →';
 }
 
 // ── SUBMIT ────────────────────────────────────────────────────────────────

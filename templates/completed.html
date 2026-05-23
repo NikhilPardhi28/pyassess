@@ -3,13 +3,23 @@
 {% block body %}
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:32px;">
   <div style="font-size:64px">✅</div>
-  <h1 style="font-size:28px;font-weight:700">Test Submitted Successfully</h1>
-  <p style="color:var(--muted);max-width:420px;line-height:1.7">
-    Your test has been submitted for review. The hiring team will evaluate your responses and reach out to you with the results.
-    Thank you for taking the PyAssess Pro Python Developer Test.
+  <h1 style="font-size:28px;font-weight:700;">Test Submitted Successfully</h1>
+  {% if portal %}
+  <p style="color:var(--muted);max-width:440px;line-height:1.8;">
+    Your Python Developer Assessment has been submitted. Our team will evaluate your responses and you will receive your results within the next
+    <strong style="color:var(--accent)">24 hours</strong>.
   </p>
-  <div class="card" style="max-width:400px;background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)">
-    <p style="color:var(--green);font-size:14px">Your answers have been recorded. You may now close this window.</p>
+  <div class="card" style="max-width:400px;background:rgba(0,212,255,.04);border-color:rgba(0,212,255,.2);">
+    <p style="font-size:14px;line-height:1.7;">📧 Results will be communicated to you via email.<br>You may now close this window.</p>
   </div>
+  <a href="/portal" class="btn btn-ghost" style="margin-top:8px;">← Back to Portal</a>
+  {% else %}
+  <p style="color:var(--muted);max-width:420px;line-height:1.7;">
+    Your answers have been submitted for review. The hiring team will contact you with the results.
+  </p>
+  <div class="card" style="max-width:400px;background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.2);">
+    <p style="color:var(--green);font-size:14px;">You may now close this window.</p>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

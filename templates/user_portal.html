@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}My Portal – PyAssess Pro{% endblock %}
+{% block extra_head %}
+<style>
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:16px;}
+.main{padding:40px 32px;max-width:800px;margin:0 auto;}
+.hero-card{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(124,58,237,.08));border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:32px;display:flex;align-items:center;gap:20px;}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#000;flex-shrink:0;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
+.status-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;}
+.s-completed{background:rgba(16,185,129,.15);color:var(--green);}
+.s-ejected{background:rgba(239,68,68,.15);color:var(--red);}
+.s-pending{background:rgba(245,158,11,.15);color:var(--yellow);}
+</style>
+{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div style="font-family:var(--mono);font-size:16px;font-weight:700;">Py<span style="color:var(--accent)">Assess</span> Pro</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:14px;">
+    <span style="font-size:13px;color:var(--muted);">{{ user_email }}</span>
+    <a href="/user-logout" class="btn btn-ghost" style="font-size:12px;padding:6px 14px;">Logout</a>
+  </div>
+</div>
+<div class="main">
+  <div class="hero-card">
+    <div class="avatar">{{ user_name[0].upper() }}</div>
+    <div>
+      <div style="font-size:20px;font-weight:700;">Welcome, {{ user_name }}!</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px;">Python Developer Assessment Portal</div>
+    </div>
+  </div>
+
+  {% set has_pending = my_sessions.values()|selectattr('status','equalto','pending')|list %}
+  {% set has_completed = my_sessions.values()|selectattr('status','in',['completed','ejected'])|list %}
+
+  {% if has_completed %}
+  <!-- Already completed -->
+  <div class="info-card" style="text-align:center;padding:40px;">
+    <div style="font-size:48px;margin-bottom:16px;">✅</div>
+    <h2 style="font-size:20px;margin-bottom:10px;">Test Submitted</h2>
+    <p style="color:var(--muted);line-height:1.7;max-width:420px;margin:0 auto;">
+      Your Python Developer Assessment has been submitted successfully.<br>
+      You will receive your results within the next <strong style="color:var(--accent)">24 hours</strong>.
+    </p>
+    <div style="margin-top:24px;padding:14px 20px;background:var(--surface2);border-radius:10px;display:inline-block;font-size:13px;color:var(--muted);">
+      📧 Results will be communicated to <strong style="color:var(--text)">{{ user_email }}</strong>
+    </div>
+  </div>
+
+  {% elif has_pending %}
+  <!-- Resume test -->
+  {% set tok = has_pending[0] %}
+  {% set token_key = my_sessions.keys()|list|first %}
+  {% for t, s in my_sessions.items() %}{% if s.status == 'pending' %}
+  <div class="info-card" style="text-align:center;padding:40px;">
+    <div style="font-size:48px;margin-bottom:16px;">📋</div>
+    <h2 style="font-size:20px;margin-bottom:10px;">Your Test is Ready</h2>
+    <p style="color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto 24px;">
+      You have an active test session. Make sure you're in a <strong>quiet, well-lit room</strong> with your camera and microphone enabled before starting.
+    </p>
+    <div style="background:var(--surface2);border-radius:10px;padding:16px 20px;text-align:left;max-width:400px;margin:0 auto 24px;font-size:13px;line-height:2;">
+      📷 Have your <strong>camera</strong> ready<br>
+      🔇 Find a <strong>quiet place</strong><br>
+      ⏱️ You have <strong>90 minutes</strong> to complete 60 questions<br>
+      🚫 Do not <strong>switch tabs</strong> during the test
+    </div>
+    <a href="/test/{{ t }}" class="btn btn-primary" style="font-size:16px;padding:14px 40px;">Start Test →</a>
+  </div>
+  {% endif %}{% endfor %}
+
+  {% else %}
+  <!-- No test yet -->
+  <div class="info-card" style="text-align:center;padding:40px;">
+    <div style="font-size:48px;margin-bottom:16px;">🚀</div>
+    <h2 style="font-size:20px;margin-bottom:10px;">Ready to Take the Test?</h2>
+    <p style="color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto 28px;">
+      Click below to generate your personal test session and start immediately. Make sure you're in a quiet, well-lit room with your camera ready.
+    </p>
+    <div style="background:var(--surface2);border-radius:10px;padding:16px 20px;text-align:left;max-width:400px;margin:0 auto 28px;font-size:13px;line-height:2;">
+      📷 Camera will be required<br>
+      ⏱️ 90 minutes · 60 questions<br>
+      💻 Mix of MCQ and coding questions<br>
+      🔒 Proctored — stay in the tab
+    </div>
+    <button class="btn btn-primary" style="font-size:16px;padding:14px 40px;" onclick="startTest()">Generate & Start My Test →</button>
+    <div id="start-msg" style="margin-top:14px;font-size:13px;color:var(--muted);display:none;">⏳ Setting up your test session...</div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function startTest() {
+  document.getElementById('start-msg').style.display = 'block';
+  const res  = await fetch('/portal/start-test', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  const data = await res.json();
+  if (data.token) {
+    window.location.href = '/test/' + data.token + '?portal=1';
+  } else {
+    alert('Error starting test. Please refresh and try again.');
+  }
+}
+</script>
+{% endblock %}

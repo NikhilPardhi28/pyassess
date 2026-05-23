@@ -23,5 +23,14 @@
     "email": "choudharyvishwas5dec@gmail.com",
     "created_at": "2026-05-22T16:14:03.300648",
     "status": "pending"
+  },
+  "3256efb6-1a1b-4a6c-8791-ca84365226cb": {
+    "name": "Nikhil Pardhi",
+    "email": "admin",
+    "created_at": "2026-05-22T21:00:10.608980",
+    "window_start": "2026-05-22T21:02",
+    "window_end": "2026-05-22T21:05",
+    "status": "ejected",
+    "result_id": "b1496be3"
   }
 }

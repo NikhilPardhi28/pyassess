@@ -443,5 +443,450 @@
     },
     "final_score": null,
     "status": "ejected"
+  },
+  "b1496be3": {
+    "result_id": "b1496be3",
+    "token": "3256efb6-1a1b-4a6c-8791-ca84365226cb",
+    "candidate_name": "Nikhil Pardhi",
+    "candidate_email": "admin",
+    "submitted_at": "2026-05-22T21:02:42.424690",
+    "ejected": true,
+    "proctoring_events": [
+      {
+        "type": "VOICE_DETECTED",
+        "detail": "Audio/voice detected during test \u2014 auto-eject triggered",
+        "time": "2026-05-22T15:32:40.918Z",
+        "question": 1
+      }
+    ],
+    "mcq_score": 0,
+    "mcq_total": 55,
+    "mcq_percentage": 0.0,
+    "graded_answers": {
+      "1": {
+        "user_answer": "",
+        "correct_answer": "A",
+        "is_correct": false,
+        "question": "What is the correct file extension for Python files?",
+        "level": "very_easy"
+      },
+      "2": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "Which keyword is used to define a function in Python?",
+        "level": "very_easy"
+      },
+      "3": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does 'print()' do in Python?",
+        "level": "very_easy"
+      },
+      "4": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the output of: type(3.14)?",
+        "level": "easy"
+      },
+      "5": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "Which of these is a mutable data type in Python?",
+        "level": "easy"
+      },
+      "6": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What is the correct syntax for a comment in Python?",
+        "level": "easy"
+      },
+      "7": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does len('Hello') return?",
+        "level": "easy"
+      },
+      "8": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "How do you start a while loop in Python?",
+        "level": "easy"
+      },
+      "9": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "Which method is used to add an element to the end of a list?",
+        "level": "easy"
+      },
+      "10": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does the 'import' statement do?",
+        "level": "easy"
+      },
+      "11": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the output of: bool(0)?",
+        "level": "easy"
+      },
+      "12": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "Which operator is used for floor division in Python?",
+        "level": "easy"
+      },
+      "13": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "How do you get the last element of a list 'lst'?",
+        "level": "easy"
+      },
+      "14": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the keyword used to handle exceptions in Python?",
+        "level": "easy"
+      },
+      "15": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What does the 'range(5)' function generate?",
+        "level": "easy"
+      },
+      "16": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the output of: 'Python'[1]?",
+        "level": "easy"
+      },
+      "17": {
+        "user_answer": "",
+        "correct_answer": "D",
+        "is_correct": false,
+        "question": "Which built-in function returns the length of a list?",
+        "level": "easy"
+      },
+      "18": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the result of: 10 % 3?",
+        "level": "easy"
+      },
+      "19": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "How do you convert a string '42' to an integer?",
+        "level": "easy"
+      },
+      "20": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "Which of these creates an empty dictionary?",
+        "level": "easy"
+      },
+      "21": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What keyword is used to exit a loop prematurely?",
+        "level": "easy"
+      },
+      "22": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What does 'pass' do in Python?",
+        "level": "easy"
+      },
+      "23": {
+        "user_answer": "",
+        "correct_answer": "A",
+        "is_correct": false,
+        "question": "What is the output of: [1,2,3] + [4,5]?",
+        "level": "easy"
+      },
+      "24": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "Which method removes whitespace from both ends of a string?",
+        "level": "easy"
+      },
+      "25": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the output of: 2 ** 3?",
+        "level": "easy"
+      },
+      "26": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a lambda function in Python?",
+        "level": "medium"
+      },
+      "27": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does the 'self' parameter refer to in a class method?",
+        "level": "medium"
+      },
+      "28": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a list comprehension?",
+        "level": "medium"
+      },
+      "29": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does *args allow in a function?",
+        "level": "medium"
+      },
+      "30": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the difference between '==' and 'is' in Python?",
+        "level": "medium"
+      },
+      "31": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does the 'yield' keyword do?",
+        "level": "medium"
+      },
+      "32": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What is the time complexity of accessing an element in a Python dictionary?",
+        "level": "medium"
+      },
+      "33": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What does 'map(func, iterable)' return in Python 3?",
+        "level": "medium"
+      },
+      "34": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the purpose of '__init__' in a Python class?",
+        "level": "medium"
+      },
+      "35": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does the 'with' statement ensure when opening a file?",
+        "level": "medium"
+      },
+      "36": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a Python decorator?",
+        "level": "medium"
+      },
+      "37": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the output of: sorted([3,1,4,1,5,9], reverse=True)?",
+        "level": "medium"
+      },
+      "38": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "Which module is used for regular expressions in Python?",
+        "level": "medium"
+      },
+      "39": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does 'enumerate()' do?",
+        "level": "medium"
+      },
+      "40": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is method overriding in Python OOP?",
+        "level": "medium"
+      },
+      "41": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the result of: list(zip([1,2],[3,4]))?",
+        "level": "medium"
+      },
+      "42": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a shallow copy vs a deep copy?",
+        "level": "medium"
+      },
+      "43": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does '__str__' method do in a class?",
+        "level": "medium"
+      },
+      "44": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the purpose of 'try-except-finally'?",
+        "level": "medium"
+      },
+      "45": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does 'global' keyword do inside a function?",
+        "level": "medium"
+      },
+      "46": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the GIL (Global Interpreter Lock) in CPython?",
+        "level": "extreme"
+      },
+      "47": {
+        "user_answer": "",
+        "correct_answer": "A",
+        "is_correct": false,
+        "question": "What is the time/space complexity of Python's Timsort algorithm?",
+        "level": "extreme"
+      },
+      "48": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a metaclass in Python?",
+        "level": "extreme"
+      },
+      "49": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What happens when you use 'async def' and 'await' in Python?",
+        "level": "extreme"
+      },
+      "50": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the difference between __new__ and __init__ in Python?",
+        "level": "extreme"
+      },
+      "51": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "In Python's MRO (Method Resolution Order), which algorithm is used?",
+        "level": "extreme"
+      },
+      "52": {
+        "user_answer": "",
+        "correct_answer": "C",
+        "is_correct": false,
+        "question": "What is the difference between 'threading' and 'multiprocessing' modules for CPU-bound tasks?",
+        "level": "extreme"
+      },
+      "53": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What does 'functools.lru_cache' do?",
+        "level": "extreme"
+      },
+      "54": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is a descriptor protocol in Python?",
+        "level": "extreme"
+      },
+      "55": {
+        "user_answer": "",
+        "correct_answer": "B",
+        "is_correct": false,
+        "question": "What is the difference between 'is' comparison for small integers vs large integers in CPython?",
+        "level": "extreme"
+      }
+    },
+    "code_answers": {
+      "56": {
+        "question": "Write a Python function that takes a float number as input and prints it in scientific notation format. Example: input 0.000123 should output '1.23e-04'. Your function should handle both very small and very large numbers.",
+        "user_code": "",
+        "admin_reviewed": false,
+        "admin_score": null,
+        "admin_note": ""
+      },
+      "57": {
+        "question": "Write a Python program that implements a simple calculator supporting all 4 basic operations: addition (+), subtraction (-), multiplication (*), and division (/). The program should take two numbers and an operator as input, handle division by zero gracefully, and return the result.",
+        "user_code": "",
+        "admin_reviewed": false,
+        "admin_score": null,
+        "admin_note": ""
+      },
+      "58": {
+        "question": "Write a Python function that accepts a list of integers and returns a new list containing only the unique elements, preserving the original order of first occurrence. Do NOT use set() directly \u00e2\u20ac\u201d implement the logic manually.",
+        "user_code": "",
+        "admin_reviewed": false,
+        "admin_score": null,
+        "admin_note": ""
+      },
+      "59": {
+        "question": "Write a Python class 'Stack' that implements a stack data structure with the following methods: push(item), pop(), peek(), is_empty(), and size(). Include proper error handling for pop/peek on an empty stack.",
+        "user_code": "",
+        "admin_reviewed": false,
+        "admin_score": null,
+        "admin_note": ""
+      },
+      "60": {
+        "question": "Write a Python function that checks whether a given string is a palindrome. It should be case-insensitive and ignore spaces and punctuation. Example: 'A man, a plan, a canal: Panama' should return True.",
+        "user_code": "",
+        "admin_reviewed": false,
+        "admin_score": null,
+        "admin_note": ""
+      }
+    },
+    "final_score": null,
+    "status": "ejected"
   }
 }
